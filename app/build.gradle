@@ -45,8 +45,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     // Room
-    implementation 'androidx.room:room-runtime:2.6.1'
-    annotationProcessor 'androidx.room:room-compiler:2.6.1'
+    implementation 'androidx.room:room-runtime:2.7.0'
+    annotationProcessor 'androidx.room:room-compiler:2.7.0'
 
     // Auth
     implementation 'com.google.android.gms:play-services-auth:21.2.0'
