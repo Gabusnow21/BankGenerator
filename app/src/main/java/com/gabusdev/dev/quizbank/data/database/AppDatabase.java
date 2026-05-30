@@ -6,11 +6,14 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import com.gabusdev.dev.quizbank.data.database.daos.DocenteDao;
+import com.gabusdev.dev.quizbank.data.database.daos.PreguntaDao;
 import com.gabusdev.dev.quizbank.data.models.DocenteEntity;
+import com.gabusdev.dev.quizbank.data.models.PreguntaEntity;
 
-@Database(entities = {DocenteEntity.class}, version = 1, exportSchema = false)
+@Database(entities = {DocenteEntity.class, PreguntaEntity.class}, version = 2, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract DocenteDao docenteDao();
+    public abstract PreguntaDao preguntaDao();
 
     private static volatile AppDatabase INSTANCE;
 
@@ -20,6 +23,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, "quizbank_db")
+                            .fallbackToDestructiveMigration()
                             .build();
                 }
             }
