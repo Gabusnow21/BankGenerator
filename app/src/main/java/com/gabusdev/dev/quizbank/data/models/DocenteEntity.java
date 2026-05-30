@@ -15,6 +15,7 @@ public class DocenteEntity {
 
     public DocenteEntity() {}
 
+    @androidx.room.Ignore
     public DocenteEntity(String nombre, String correo, String institucion, long fechaRegistro) {
         this.nombre = nombre;
         this.correo = correo;
