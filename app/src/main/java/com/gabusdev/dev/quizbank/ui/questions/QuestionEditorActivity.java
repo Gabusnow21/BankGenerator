@@ -16,9 +16,11 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 public class QuestionEditorActivity extends AppCompatActivity {
+    public static final String EXTRA_QUESTION_ID = "extra_question_id";
     private ActivityQuestionEditorBinding binding;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private boolean isWebViewLoaded = false;
+    private int questionId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,9 +28,15 @@ public class QuestionEditorActivity extends AppCompatActivity {
         binding = ActivityQuestionEditorBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        questionId = getIntent().getIntExtra(EXTRA_QUESTION_ID, -1);
+
         setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            if (questionId != -1) {
+                getSupportActionBar().setTitle("Editar Pregunta");
+                binding.btnSaveQuestion.setText("Actualizar Pregunta");
+            }
         }
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
@@ -36,6 +44,24 @@ public class QuestionEditorActivity extends AppCompatActivity {
         
         setupPreview();
         setupTextWatcher();
+        
+        if (questionId != -1) {
+            loadQuestionData();
+        }
+    }
+
+    private void loadQuestionData() {
+        executorService.execute(() -> {
+            PreguntaEntity pregunta = AppDatabase.getInstance(this).preguntaDao().getPreguntaById(questionId);
+            if (pregunta != null) {
+                runOnUiThread(() -> {
+                    binding.etNivel.setText(pregunta.nivel);
+                    binding.etEnunciado.setText(pregunta.enunciado);
+                    binding.etRespuestaCorrecta.setText(pregunta.respuestaCorrecta);
+                    binding.etJustificacion.setText(pregunta.justificacion);
+                });
+            }
+        });
     }
 
     private void setupPreview() {
