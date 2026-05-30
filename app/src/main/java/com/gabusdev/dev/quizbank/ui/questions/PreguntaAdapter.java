@@ -16,6 +16,16 @@ import java.util.Locale;
 public class PreguntaAdapter extends RecyclerView.Adapter<PreguntaAdapter.ViewHolder> {
     private List<PreguntaEntity> questions = new ArrayList<>();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    private final OnQuestionActionListener listener;
+
+    public interface OnQuestionActionListener {
+        void onEdit(PreguntaEntity pregunta);
+        void onDelete(PreguntaEntity pregunta);
+    }
+
+    public PreguntaAdapter(OnQuestionActionListener listener) {
+        this.listener = listener;
+    }
 
     public void setQuestions(List<PreguntaEntity> questions) {
         this.questions = questions;
@@ -36,6 +46,9 @@ public class PreguntaAdapter extends RecyclerView.Adapter<PreguntaAdapter.ViewHo
         holder.binding.tvEnunciadoPreview.setText(question.enunciado);
         holder.binding.tvNivelTag.setText(question.nivel);
         holder.binding.tvFecha.setText("Creado el " + dateFormat.format(new Date(question.fechaCreacion)));
+
+        holder.binding.btnEdit.setOnClickListener(v -> listener.onEdit(question));
+        holder.binding.btnDelete.setOnClickListener(v -> listener.onDelete(question));
     }
 
     @Override
