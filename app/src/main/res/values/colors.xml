@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors (Academic Blue) -->
+    <color name="primary">#1A237E</color>
+    <color name="primary_light">#534BAE</color>
+    <color name="primary_dark">#000051</color>
+    
+    <!-- Secondary Colors (Clean Gray/Teal) -->
+    <color name="secondary">#455A64</color>
+    <color name="secondary_light">#718792</color>
+    <color name="secondary_dark">#1C313A</color>
+
+    <!-- Neutral Colors -->
+    <color name="background">#F5F5F5</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="error">#B00020</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+</resources>
