@@ -87,7 +87,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void navigateToDashboard() {
-        // TODO: Intent to DashboardActivity
-        Toast.makeText(this, "Bienvenido, " + (GoogleSignIn.getLastSignedInAccount(this) != null ? GoogleSignIn.getLastSignedInAccount(this).getDisplayName() : ""), Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, com.gabusdev.dev.quizbank.ui.dashboard.DashboardActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
