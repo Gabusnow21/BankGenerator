@@ -9,9 +9,16 @@ import com.gabusdev.dev.quizbank.databinding.ActivityQuestionEditorBinding;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
 public class QuestionEditorActivity extends AppCompatActivity {
     private ActivityQuestionEditorBinding binding;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private boolean isWebViewLoaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,12 +35,64 @@ public class QuestionEditorActivity extends AppCompatActivity {
         binding.btnSaveQuestion.setOnClickListener(v -> saveQuestion());
         
         setupPreview();
+        setupTextWatcher();
     }
 
     private void setupPreview() {
-        // En una fase posterior se inyectará KaTeX aquí
-        binding.wvPreview.getSettings().setJavaScriptEnabled(true);
-        binding.wvPreview.loadData("<html><body><i>La previsualización matemática aparecerá aquí...</i></body></html>", "text/html", "UTF-8");
+        WebSettings settings = binding.wvPreview.getSettings();
+        settings.setJavaScriptEnabled(true);
+        
+        String htmlTemplate = "<!DOCTYPE html><html><head>" +
+                "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css'>" +
+                "<script src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js'></script>" +
+                "<script src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js'></script>" +
+                "<style>body { font-size: 16px; color: #1A237E; padding: 5px; font-family: sans-serif; }</style>" +
+                "</head><body><div id='mathContent'>escribe para previsualizar...</div>" +
+                "<script>" +
+                "function renderMath(text) {" +
+                "  var element = document.getElementById('mathContent');" +
+                "  element.innerHTML = text;" +
+                "  renderMathInElement(document.body, {" +
+                "    delimiters: [" +
+                "      {left: '$$', right: '$$', display: true}," +
+                "      {left: '$', right: '$', display: false}" +
+                "    ]" +
+                "  });" +
+                "}" +
+                "</script></body></html>";
+
+        binding.wvPreview.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                isWebViewLoaded = true;
+                updateMathPreview(binding.etEnunciado.getText().toString());
+            }
+        });
+
+        binding.wvPreview.loadDataWithBaseURL("https://cdn.jsdelivr.net/", htmlTemplate, "text/html", "UTF-8", null);
+    }
+
+    private void setupTextWatcher() {
+        binding.etEnunciado.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateMathPreview(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+    }
+
+    private void updateMathPreview(String text) {
+        if (isWebViewLoaded) {
+            // Escapar comillas y saltos de línea para el JS
+            String escapedText = text.replace("'", "\\'").replace("\n", "<br>");
+            binding.wvPreview.evaluateJavascript("renderMath('" + escapedText + "')", null);
+        }
     }
 
     private void saveQuestion() {
