@@ -14,7 +14,7 @@ import com.gabusdev.dev.quizbank.ui.questions.PreguntaAdapter;
 import com.gabusdev.dev.quizbank.ui.questions.QuestionEditorActivity;
 import android.content.Intent;
 
-public class DashboardActivity extends AppCompatActivity {
+public class DashboardActivity extends AppCompatActivity implements PreguntaAdapter.OnQuestionActionListener {
     private ActivityDashboardBinding binding;
     private PreguntaAdapter adapter;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -35,9 +35,31 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        adapter = new PreguntaAdapter();
+        adapter = new PreguntaAdapter(this);
         binding.rvQuestions.setLayoutManager(new LinearLayoutManager(this));
         binding.rvQuestions.setAdapter(adapter);
+    }
+
+    @Override
+    public void onEdit(com.gabusdev.dev.quizbank.data.models.PreguntaEntity pregunta) {
+        Intent intent = new Intent(this, QuestionEditorActivity.class);
+        intent.putExtra(QuestionEditorActivity.EXTRA_QUESTION_ID, pregunta.id);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onDelete(com.gabusdev.dev.quizbank.data.models.PreguntaEntity pregunta) {
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Eliminar Pregunta")
+                .setMessage("¿Estás seguro de que deseas eliminar esta pregunta?")
+                .setPositiveButton("Eliminar", (dialog, which) -> {
+                    executorService.execute(() -> {
+                        AppDatabase.getInstance(this).preguntaDao().deletePregunta(pregunta);
+                        loadTeacherInfo(); // Recargar lista
+                    });
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
 
     @Override
