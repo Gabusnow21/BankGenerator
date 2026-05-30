@@ -23,5 +23,9 @@
         <activity
             android:name=".ui.dashboard.DashboardActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.questions.QuestionEditorActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 </manifest>
