@@ -49,7 +49,22 @@ public class LoginActivity extends AppCompatActivity {
             googleSignInLauncher.launch(signInIntent);
         });
 
+        binding.btnBypassLogin.setOnClickListener(v -> bypassLogin());
+
         checkExistingSession();
+    }
+
+    private void bypassLogin() {
+        executorService.execute(() -> {
+            DocenteEntity mockDocente = new DocenteEntity(
+                    "Docente de Prueba",
+                    "docente@prueba.com",
+                    "Institución Educativa",
+                    System.currentTimeMillis()
+            );
+            AppDatabase.getInstance(this).docenteDao().insertDocente(mockDocente);
+            runOnUiThread(this::navigateToDashboard);
+        });
     }
 
     private void checkExistingSession() {
