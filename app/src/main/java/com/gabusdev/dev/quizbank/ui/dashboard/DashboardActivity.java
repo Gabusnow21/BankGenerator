@@ -90,14 +90,148 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
         });
     }
 
+    @Override
+    public void onSelectionChanged(int count) {
+        if (adapter != null && count > 0) {
+            binding.fabAddQuestion.setText("Exportar (" + count + ")");
+            binding.fabAddQuestion.setIconResource(android.R.drawable.ic_menu_share);
+        } else {
+            binding.fabAddQuestion.setText(R.string.dashboard_new_question);
+            binding.fabAddQuestion.setIconResource(android.R.drawable.ic_input_add);
+        }
+    }
+
+    private void setupFilters(List<PreguntaEntity> preguntas) {
+        binding.chipGroupFilters.removeAllViews();
+        
+        com.google.android.material.chip.Chip chipAll = new com.google.android.material.chip.Chip(this);
+        chipAll.setText("Todas");
+        chipAll.setCheckable(true);
+        chipAll.setChecked(true);
+        chipAll.setOnClickListener(v -> adapter.filter(null));
+        binding.chipGroupFilters.addView(chipAll);
+
+        java.util.Set<String> niveles = new java.util.HashSet<>();
+        for (PreguntaEntity p : preguntas) {
+            if (p.nivel != null && !p.nivel.isEmpty()) niveles.add(p.nivel);
+        }
+
+        for (String nivel : niveles) {
+            com.google.android.material.chip.Chip chip = new com.google.android.material.chip.Chip(this);
+            chip.setText(nivel);
+            chip.setCheckable(true);
+            chip.setOnClickListener(v -> adapter.filter(nivel));
+            binding.chipGroupFilters.addView(chip);
+        }
+    }
+
     private void showExportDialog() {
-        String[] options = {"JSON", "Markdown (.md)", "LaTeX (.tex)", "PDF (.pdf)"};
+        String[] options = {"Banco Completo", "Por Nivel/Grado", "Selección Manual"};
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.dashboard_export_title)
+                .setTitle("¿Qué deseas exportar?")
                 .setItems(options, (dialog, which) -> {
-                    exportQuestions(which);
+                    switch (which) {
+                        case 0: showFormatDialog(null); break;
+                        case 1: showLevelSelector(); break;
+                        case 2: enterSelectionMode(); break;
+                    }
                 })
                 .show();
+    }
+
+    private void enterSelectionMode() {
+        adapter.setSelectionMode(true);
+        Toast.makeText(this, "Toca las preguntas que deseas incluir", Toast.LENGTH_LONG).show();
+        binding.fabAddQuestion.setOnClickListener(v -> {
+            List<PreguntaEntity> seleccion = adapter.getSelectedQuestions();
+            if (seleccion.isEmpty()) {
+                exitSelectionMode();
+            } else {
+                showFormatDialog(seleccion);
+            }
+        });
+    }
+
+    private void exitSelectionMode() {
+        adapter.setSelectionMode(false);
+        binding.fabAddQuestion.setText(R.string.dashboard_new_question);
+        binding.fabAddQuestion.setIconResource(android.R.drawable.ic_input_add);
+        binding.fabAddQuestion.setOnClickListener(v -> {
+            Intent intent = new Intent(this, QuestionEditorActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    private void showLevelSelector() {
+        executorService.execute(() -> {
+            List<PreguntaEntity> all = AppDatabase.getInstance(this).preguntaDao().getAllPreguntas();
+            java.util.Set<String> nivelesSet = new java.util.HashSet<>();
+            for (PreguntaEntity p : all) nivelesSet.add(p.nivel);
+            String[] niveles = nivelesSet.toArray(new String[0]);
+
+            runOnUiThread(() -> {
+                new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                        .setTitle("Seleccionar Nivel")
+                        .setItems(niveles, (dialog, which) -> {
+                            String selectedLevel = niveles[which];
+                            filterAndExport(selectedLevel);
+                        })
+                        .show();
+            });
+        });
+    }
+
+    private void filterAndExport(String level) {
+        executorService.execute(() -> {
+            List<PreguntaEntity> all = AppDatabase.getInstance(this).preguntaDao().getAllPreguntas();
+            List<PreguntaEntity> filtered = new java.util.ArrayList<>();
+            for (PreguntaEntity p : all) {
+                if (p.nivel.equals(level)) filtered.add(p);
+            }
+            runOnUiThread(() -> showFormatDialog(filtered));
+        });
+    }
+
+    private void showFormatDialog(List<PreguntaEntity> specificList) {
+        String[] formats = {"JSON", "Markdown (.md)", "LaTeX (.tex)", "PDF (.pdf)"};
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dashboard_export_title)
+                .setItems(formats, (dialog, which) -> {
+                    if (specificList != null) {
+                        processExport(which, specificList);
+                    } else {
+                        exportQuestions(which);
+                    }
+                    if (adapter != null) exitSelectionMode();
+                })
+                .show();
+    }
+
+    private void processExport(int type, List<PreguntaEntity> preguntas) {
+        if (type == 3) { // PDF
+            createWebPrintJob(preguntas);
+            return;
+        }
+
+        executorService.execute(() -> {
+            try {
+                String content = "";
+                String fileName = "";
+                String mimeType = "text/plain";
+
+                switch (type) {
+                    case 0: content = ExportUtils.exportToJson(preguntas); fileName = "seleccion.json"; mimeType = "application/json"; break;
+                    case 1: content = ExportUtils.exportToMarkdown(preguntas); fileName = "seleccion.md"; break;
+                    case 2: content = ExportUtils.exportToLatex(preguntas); fileName = "seleccion.tex"; break;
+                }
+
+                Uri fileUri = FileHelper.saveAndGetUri(this, content, fileName);
+                String finalMimeType = mimeType;
+                runOnUiThread(() -> shareFile(fileUri, finalMimeType));
+            } catch (Exception e) {
+                runOnUiThread(() -> Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        });
     }
 
     private void exportQuestions(int type) {
@@ -285,6 +419,7 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
                 binding.tvStats.setText(getString(R.string.dashboard_stats, preguntas.size()));
                 if (adapter != null) {
                     adapter.setQuestions(preguntas);
+                    setupFilters(preguntas);
                 }
             });
         });
