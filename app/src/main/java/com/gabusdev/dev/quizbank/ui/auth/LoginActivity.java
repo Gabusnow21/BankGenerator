@@ -49,20 +49,28 @@ public class LoginActivity extends AppCompatActivity {
             googleSignInLauncher.launch(signInIntent);
         });
 
-        binding.btnBypassLogin.setOnClickListener(v -> bypassLogin());
+        binding.btnLocalLogin.setOnClickListener(v -> handleLocalLogin());
 
         checkExistingSession();
     }
 
-    private void bypassLogin() {
+    private void handleLocalLogin() {
+        String nombre = binding.etNombre.getText().toString().trim();
+        String institucion = binding.etInstitucion.getText().toString().trim();
+
+        if (nombre.isEmpty()) {
+            Toast.makeText(this, "Por favor, ingresa tu nombre", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         executorService.execute(() -> {
-            DocenteEntity mockDocente = new DocenteEntity(
-                    "Docente de Prueba",
-                    "docente@prueba.com",
-                    "Institución Educativa",
+            DocenteEntity docente = new DocenteEntity(
+                    nombre,
+                    "local_user@quizbank.app", // Email ficticio para uso local
+                    institucion.isEmpty() ? "Institución Independiente" : institucion,
                     System.currentTimeMillis()
             );
-            AppDatabase.getInstance(this).docenteDao().insertDocente(mockDocente);
+            AppDatabase.getInstance(this).docenteDao().insertDocente(docente);
             runOnUiThread(this::navigateToDashboard);
         });
     }
@@ -71,7 +79,7 @@ public class LoginActivity extends AppCompatActivity {
         executorService.execute(() -> {
             DocenteEntity docente = AppDatabase.getInstance(this).docenteDao().getDocente();
             if (docente != null) {
-                navigateToDashboard();
+                runOnUiThread(this::navigateToDashboard);
             }
         });
     }
@@ -84,7 +92,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         } catch (ApiException e) {
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
-            Toast.makeText(this, "Error al iniciar sesión", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error al iniciar sesión con Google", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -93,7 +101,7 @@ public class LoginActivity extends AppCompatActivity {
             DocenteEntity docente = new DocenteEntity(
                     account.getDisplayName(),
                     account.getEmail(),
-                    "Institución no especificada",
+                    "Institución vía Google",
                     System.currentTimeMillis()
             );
             AppDatabase.getInstance(this).docenteDao().insertDocente(docente);
