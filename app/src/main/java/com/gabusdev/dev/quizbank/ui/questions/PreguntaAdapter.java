@@ -49,6 +49,9 @@ public class PreguntaAdapter extends RecyclerView.Adapter<PreguntaAdapter.ViewHo
 
         holder.binding.btnEdit.setOnClickListener(v -> listener.onEdit(question));
         holder.binding.btnDelete.setOnClickListener(v -> listener.onDelete(question));
+        
+        // Forzar visibilidad por si acaso
+        holder.itemView.setVisibility(View.VISIBLE);
     }
 
     @Override

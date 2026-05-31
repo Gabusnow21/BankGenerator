@@ -37,7 +37,12 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.toolbar);
-        getLifecycle();
+        
+        // Inicializar Adapter y RecyclerView
+        adapter = new PreguntaAdapter(this);
+        binding.rvQuestions.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvQuestions.setAdapter(adapter);
+
         loadTeacherInfo();
         
         binding.fabAddQuestion.setOnClickListener(v -> {
@@ -153,6 +158,8 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
             java.util.List<com.gabusdev.dev.quizbank.data.models.PreguntaEntity> preguntas = 
                     AppDatabase.getInstance(this).preguntaDao().getAllPreguntas();
             
+            android.util.Log.d("DashboardActivity", "Preguntas cargadas: " + preguntas.size());
+            
             runOnUiThread(() -> {
                 if (docente != null) {
                     binding.tvWelcome.setText("Bienvenido, " + docente.nombre);
@@ -160,6 +167,9 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
                 binding.tvStats.setText("Tienes " + preguntas.size() + " preguntas en tu banco");
                 if (adapter != null) {
                     adapter.setQuestions(preguntas);
+                    android.util.Log.d("DashboardActivity", "Adapter actualizado con " + preguntas.size() + " ítems");
+                } else {
+                    android.util.Log.e("DashboardActivity", "El adapter es NULO");
                 }
             });
         });

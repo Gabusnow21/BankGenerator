@@ -1,9 +1,11 @@
 package com.gabusdev.dev.quizbank.ui.questions;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.gabusdev.dev.quizbank.data.database.AppDatabase;
+import com.gabusdev.dev.quizbank.data.database.daos.PreguntaDao;
 import com.gabusdev.dev.quizbank.data.models.PreguntaEntity;
 import com.gabusdev.dev.quizbank.databinding.ActivityQuestionEditorBinding;
 import java.util.concurrent.ExecutorService;
@@ -22,6 +24,7 @@ public class QuestionEditorActivity extends AppCompatActivity {
     private boolean isWebViewLoaded = false;
     private int questionId = -1;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,16 +136,31 @@ public class QuestionEditorActivity extends AppCompatActivity {
         }
 
         executorService.execute(() -> {
-            PreguntaEntity pregunta = new PreguntaEntity(
-                    enunciado,
-                    "[]", // Opciones JSON vacío por ahora
-                    respuesta,
-                    justificacion,
-                    nivel
-            );
-            AppDatabase.getInstance(this).preguntaDao().insertPregunta(pregunta);
+            PreguntaDao dao = AppDatabase.getInstance(this).preguntaDao();
+            if (questionId != -1) {
+                // Actualizar existente
+                PreguntaEntity pregunta = dao.getPreguntaById(questionId);
+                if (pregunta != null) {
+                    pregunta.nivel = nivel;
+                    pregunta.enunciado = enunciado;
+                    pregunta.respuestaCorrecta = respuesta;
+                    pregunta.justificacion = justificacion;
+                    dao.updatePregunta(pregunta);
+                }
+            } else {
+                // Crear nueva
+                PreguntaEntity pregunta = new PreguntaEntity(
+                        enunciado,
+                        "[]", // Opciones JSON vacío por ahora
+                        respuesta,
+                        justificacion,
+                        nivel
+                );
+                dao.insertPregunta(pregunta);
+            }
+            
             runOnUiThread(() -> {
-                Toast.makeText(this, "Pregunta guardada", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, questionId != -1 ? "Pregunta actualizada" : "Pregunta guardada", Toast.LENGTH_SHORT).show();
                 finish();
             });
         });
