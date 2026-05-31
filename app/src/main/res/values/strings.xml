@@ -61,6 +61,16 @@
     <string name="editor_error_empty_fields">Por favor llena los campos obligatorios</string>
     <string name="editor_success_saved">Pregunta guardada</string>
     <string name="editor_success_updated">Pregunta actualizada</string>
+    <string name="editor_step_1_title">Información Básica</string>
+    <string name="editor_step_2_title">Respuesta y Validación</string>
+    <string name="editor_step_1_of_2">Paso 1 de 2</string>
+    <string name="editor_step_2_of_2">Paso 2 de 2</string>
+    <string name="editor_next">Siguiente</string>
+    <string name="editor_finish">Finalizar y Guardar</string>
+    <string name="editor_hint_enunciado_placeholder">Escribe el enunciado con fórmulas...</string>
+    <string name="editor_hint_answer_placeholder">Escribe la respuesta...</string>
+    <string name="editor_hint_justification_placeholder">Explica la respuesta...</string>
+    <string name="editor_select_grade">Seleccionar grado</string>
 
     <!-- Question Item Strings -->
     <string name="item_created_at">Creado el %1$s</string>

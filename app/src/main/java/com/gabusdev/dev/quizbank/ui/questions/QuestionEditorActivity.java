@@ -1,6 +1,11 @@
 package com.gabusdev.dev.quizbank.ui.questions;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.View;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,16 +19,15 @@ import java.util.concurrent.Executors;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 public class QuestionEditorActivity extends AppCompatActivity {
     public static final String EXTRA_QUESTION_ID = "extra_question_id";
     private ActivityQuestionEditorBinding binding;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private boolean isWebViewLoaded = false;
+    private boolean isWebView2Loaded = false;
     private int questionId = -1;
+    private int currentStep = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,24 +40,59 @@ public class QuestionEditorActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            if (questionId != -1) {
-                getSupportActionBar().setTitle(R.string.editor_title_edit);
-                binding.btnSaveQuestion.setText(R.string.editor_btn_update);
-            } else {
-                getSupportActionBar().setTitle(R.string.editor_title_new);
-                binding.btnSaveQuestion.setText(R.string.editor_btn_save);
-            }
         }
-        binding.toolbar.setNavigationOnClickListener(v -> finish());
+        binding.toolbar.setNavigationOnClickListener(v -> handleBackNavigation());
 
+        binding.btnNext.setOnClickListener(v -> goToStep2());
         binding.btnSaveQuestion.setOnClickListener(v -> saveQuestion());
         
-        setupPreview();
+        setupPreview(binding.wvPreview, true);
+        setupPreview(binding.wvPreview2, false);
         setupTextWatcher();
         
         if (questionId != -1) {
             loadQuestionData();
         }
+    }
+
+    private void handleBackNavigation() {
+        if (currentStep == 2) {
+            goToStep1();
+        } else {
+            finish();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (currentStep == 2) {
+            goToStep1();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private void goToStep1() {
+        currentStep = 1;
+        binding.layoutStep1.setVisibility(View.VISIBLE);
+        binding.layoutStep2.setVisibility(View.GONE);
+        binding.toolbar.setTitle(R.string.editor_step_1_title);
+        binding.tvStepIndicator.setText(R.string.editor_step_1_of_2);
+        binding.progressIndicator.setProgress(50);
+    }
+
+    private void goToStep2() {
+        if (binding.etEnunciado.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, R.string.editor_error_empty_fields, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        currentStep = 2;
+        binding.layoutStep1.setVisibility(View.GONE);
+        binding.layoutStep2.setVisibility(View.VISIBLE);
+        binding.toolbar.setTitle(R.string.editor_step_2_title);
+        binding.tvStepIndicator.setText(R.string.editor_step_2_of_2);
+        binding.progressIndicator.setProgress(100);
+        updateMathPreview(binding.etEnunciado.getText().toString());
     }
 
     private void loadQuestionData() {
@@ -70,27 +109,24 @@ public class QuestionEditorActivity extends AppCompatActivity {
         });
     }
 
-    private void setupPreview() {
-        WebSettings settings = binding.wvPreview.getSettings();
+    @SuppressLint("SetJavaScriptEnabled")
+    private void setupPreview(WebView webView, boolean isFirst) {
+        WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
         
-        int nightModeFlags = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-        boolean isDarkMode = nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES;
-        
-        String backgroundColor = isDarkMode ? "#1C1B1F" : "#FFFFFF";
-        String textColor = isDarkMode ? "#E6E1E5" : "#1A237E";
-        String placeholder = getString(R.string.editor_preview_placeholder);
+        webView.setBackgroundColor(0); // Transparent
 
         String htmlTemplate = "<!DOCTYPE html><html><head>" +
                 "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css'>" +
                 "<script src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js'></script>" +
                 "<script src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js'></script>" +
-                "<style>body { font-size: 16px; color: " + textColor + "; background-color: " + backgroundColor + "; padding: 5px; font-family: sans-serif; }</style>" +
-                "</head><body><div id='mathContent'>" + placeholder + "</div>" +
+                "<style>body { font-size: 18px; color: white; background-color: transparent; padding: 10px; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }</style>" +
+                "</head><body><div id='mathContent'></div>" +
                 "<script>" +
                 "function renderMath(text) {" +
                 "  var element = document.getElementById('mathContent');" +
-                "  element.innerHTML = text;" +
+                "  element.innerHTML = text || '';" +
                 "  renderMathInElement(document.body, {" +
                 "    delimiters: [" +
                 "      {left: '$$', right: '$$', display: true}," +
@@ -100,15 +136,19 @@ public class QuestionEditorActivity extends AppCompatActivity {
                 "}" +
                 "</script></body></html>";
 
-        binding.wvPreview.setWebViewClient(new WebViewClient() {
+        webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
-                isWebViewLoaded = true;
+                if (isFirst) {
+                    isWebViewLoaded = true;
+                } else {
+                    isWebView2Loaded = true;
+                }
                 updateMathPreview(binding.etEnunciado.getText().toString());
             }
         });
 
-        binding.wvPreview.loadDataWithBaseURL("https://cdn.jsdelivr.net/", htmlTemplate, "text/html", "UTF-8", null);
+        webView.loadDataWithBaseURL("https://cdn.jsdelivr.net/", htmlTemplate, "text/html", "UTF-8", null);
     }
 
     private void setupTextWatcher() {
@@ -127,9 +167,12 @@ public class QuestionEditorActivity extends AppCompatActivity {
     }
 
     private void updateMathPreview(String text) {
-        if (isWebViewLoaded) {
-            String escapedText = text.replace("'", "\\'").replace("\n", "<br>");
+        String escapedText = text.replace("'", "\\'").replace("\n", "<br>");
+        if (isWebViewLoaded && binding.layoutStep1.getVisibility() == View.VISIBLE) {
             binding.wvPreview.evaluateJavascript("renderMath('" + escapedText + "')", null);
+        }
+        if (isWebView2Loaded && binding.layoutStep2.getVisibility() == View.VISIBLE) {
+            binding.wvPreview2.evaluateJavascript("renderMath('" + escapedText + "')", null);
         }
     }
 
