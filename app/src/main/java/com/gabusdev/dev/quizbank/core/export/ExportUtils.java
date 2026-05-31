@@ -1,70 +1,66 @@
 package com.gabusdev.dev.quizbank.core.export;
 
 import com.gabusdev.dev.quizbank.data.models.PreguntaEntity;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import java.util.List;
 
 public class ExportUtils {
 
-    /**
-     * Exporta la lista de preguntas a un String en formato JSON.
-     */
     public static String exportToJson(List<PreguntaEntity> preguntas) throws JSONException {
-        JSONArray jsonArray = new JSONArray();
-        for (PreguntaEntity p : preguntas) {
-            JSONObject obj = new JSONObject();
-            obj.put("id", p.id);
-            obj.put("nivel", p.nivel);
-            obj.put("enunciado", p.enunciado);
-            obj.put("respuesta", p.respuestaCorrecta);
-            obj.put("justificacion", p.justificacion);
-            obj.put("fecha", p.fechaCreacion);
-            jsonArray.put(obj);
-        }
-        return jsonArray.toString(4); // Indentación de 4 espacios
+        return JsonExporter.export(preguntas);
+    }
+
+    public static String exportToMarkdown(List<PreguntaEntity> preguntas) {
+        return MarkdownExporter.export(preguntas);
+    }
+
+    public static String exportToLatex(List<PreguntaEntity> preguntas) {
+        return LatexExporter.export(preguntas);
     }
 
     /**
-     * Exporta la lista de preguntas a un String en formato Markdown optimizado para NotebookLM.
+     * Genera un HTML completo con MathJax para ser renderizado como PDF.
      */
-    public static String exportToMarkdown(List<PreguntaEntity> preguntas) {
+    public static String exportToHtml(List<PreguntaEntity> preguntas) {
         StringBuilder sb = new StringBuilder();
-        sb.append("# Banco de Preguntas - QuizBank\n\n");
+        sb.append("<!DOCTYPE html><html><head>");
+        sb.append("<meta charset='UTF-8'>");
+        sb.append("<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css'>");
+        sb.append("<script src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js'></script>");
+        sb.append("<script src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js'></script>");
+        sb.append("<style>");
+        sb.append("body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #333; line-height: 1.6; }");
+        sb.append("h1 { color: #1A237E; text-align: center; border-bottom: 2px solid #1A237E; padding-bottom: 10px; }");
+        sb.append(".question { margin-bottom: 30px; page-break-inside: avoid; }");
+        sb.append(".header { font-weight: bold; color: #1A237E; margin-bottom: 10px; }");
+        sb.append(".meta { font-size: 0.8em; color: #666; margin-bottom: 5px; }");
+        sb.append(".footer { margin-top: 50px; text-align: center; font-size: 0.8em; color: #999; }");
+        sb.append("</style></head><body>");
+        
+        sb.append("<h1>Cuestionario Matemático</h1>");
+        
         for (int i = 0; i < preguntas.size(); i++) {
             PreguntaEntity p = preguntas.get(i);
-            sb.append("## Pregunta ").append(i + 1).append(" (").append(p.nivel).append(")\n\n");
-            sb.append("**Enunciado:**\n").append(p.enunciado).append("\n\n");
-            sb.append("**Respuesta Correcta:** ").append(p.respuestaCorrecta).append("\n\n");
-            if (p.justificacion != null && !p.justificacion.isEmpty()) {
-                sb.append("> **Justificación para NotebookLM:**\n> ").append(p.justificacion).append("\n\n");
-            }
-            sb.append("---\n\n");
+            sb.append("<div class='question'>");
+            sb.append("<div class='meta'>Nivel: ").append(p.nivel).append("</div>");
+            sb.append("<div class='header'>Pregunta ").append(i + 1).append("</div>");
+            sb.append("<div class='enunciado'>").append(p.enunciado.replace("\n", "<br>")).append("</div>");
+            sb.append("</div>");
         }
-        return sb.toString();
-    }
-
-    /**
-     * Exporta la lista de preguntas a un String en formato LaTeX (Artículo científico).
-     */
-    public static String exportToLatex(List<PreguntaEntity> preguntas) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\\documentclass{article}\n");
-        sb.append("\\usepackage[utf8]{inputenc}\n");
-        sb.append("\\usepackage{amsmath}\n\n");
-        sb.append("\\title{Cuestionario Matemático - QuizBank}\n");
-        sb.append("\\author{Generado por QuizBank App}\n");
-        sb.append("\\date{\\today}\n\n");
-        sb.append("\\begin{document}\n\n");
-        sb.append("\\maketitle\n\n");
-        sb.append("\\begin{enumerate}\n");
-        for (PreguntaEntity p : preguntas) {
-            sb.append("  \\item ").append(p.enunciado).append("\n");
-            // Nota: En LaTeX real, se requiere escapar ciertos caracteres o asegurar que el LaTeX del docente sea compatible.
-        }
-        sb.append("\\end{enumerate}\n\n");
-        sb.append("\\end{document}");
+        
+        sb.append("<div class='footer'>Generado por QuizBank - Herramienta para Docentes</div>");
+        
+        sb.append("<script>");
+        sb.append("document.addEventListener('DOMContentLoaded', function() {");
+        sb.append("  renderMathInElement(document.body, {");
+        sb.append("    delimiters: [");
+        sb.append("      {left: '$$', right: '$$', display: true},");
+        sb.append("      {left: '$', right: '$', display: false}");
+        sb.append("    ]");
+        sb.append("  });");
+        sb.append("});");
+        sb.append("</script></body></html>");
+        
         return sb.toString();
     }
 }
