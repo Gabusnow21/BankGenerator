@@ -67,7 +67,7 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
     }
 
     private void showExportDialog() {
-        String[] options = {"JSON", "Markdown (.md)", "LaTeX (.tex)"};
+        String[] options = {"JSON", "Markdown (.md)", "LaTeX (.tex)", "PDF (.pdf)"};
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
                 .setTitle("Seleccionar Formato de Exportación")
                 .setItems(options, (dialog, which) -> {
@@ -83,6 +83,11 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
             
             if (preguntas.isEmpty()) {
                 runOnUiThread(() -> Toast.makeText(this, "No hay preguntas para exportar", Toast.LENGTH_SHORT).show());
+                return;
+            }
+
+            if (type == 3) { // PDF
+                runOnUiThread(() -> createWebPrintJob(preguntas));
                 return;
             }
 
@@ -114,6 +119,29 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
                 runOnUiThread(() -> Toast.makeText(this, "Error al exportar: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         });
+    }
+
+    private void createWebPrintJob(List<PreguntaEntity> preguntas) {
+        android.webkit.WebView webView = new android.webkit.WebView(this);
+        webView.setWebViewClient(new android.webkit.WebViewClient() {
+            @Override
+            public void onPageFinished(android.webkit.WebView view, String url) {
+                printWebView(view);
+            }
+        });
+
+        String htmlContent = ExportUtils.exportToHtml(preguntas);
+        webView.loadDataWithBaseURL("https://cdn.jsdelivr.net/", htmlContent, "text/html", "UTF-8", null);
+    }
+
+    private void printWebView(android.webkit.WebView webView) {
+        android.print.PrintManager printManager = (android.print.PrintManager) getSystemService(android.content.Context.PRINT_SERVICE);
+        String jobName = getString(R.string.app_name) + " Document";
+        android.print.PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter(jobName);
+        
+        if (printManager != null) {
+            printManager.print(jobName, printAdapter, new android.print.PrintAttributes.Builder().build());
+        }
     }
 
     private void shareFile(Uri uri, String mimeType) {
