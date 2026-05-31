@@ -145,22 +145,90 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
         });
     }
 
+    private android.webkit.WebView mWebView;
+    private androidx.appcompat.app.AlertDialog mActiveDialog;
+
     private void createWebPrintJob(List<PreguntaEntity> preguntas) {
-        android.webkit.WebView webView = new android.webkit.WebView(this);
-        webView.setWebViewClient(new android.webkit.WebViewClient() {
-            @Override
-            public void onPageFinished(android.webkit.WebView view, String url) {
-                printWebView(view);
+        // Mostrar diálogo de carga
+        mActiveDialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Generando PDF")
+                .setMessage("Procesando fórmulas matemáticas... (Esto puede tardar unos segundos)")
+                .setCancelable(false)
+                .show();
+
+        // Timeout de seguridad de 15 segundos
+        final Runnable timeoutRunnable = () -> {
+            if (mActiveDialog != null && mActiveDialog.isShowing()) {
+                mActiveDialog.dismiss();
+                Toast.makeText(this, "El proceso tardó demasiado. Revisa tu conexión a internet.", Toast.LENGTH_LONG).show();
+                if (mWebView != null) {
+                    binding.getRoot().removeView(mWebView);
+                    mWebView = null;
+                }
+            }
+        };
+        binding.getRoot().postDelayed(timeoutRunnable, 15000);
+
+        executorService.execute(() -> {
+            try {
+                DocenteEntity docente = AppDatabase.getInstance(this).docenteDao().getDocente();
+                String htmlContent = ExportUtils.exportToHtml(preguntas, docente);
+                
+                runOnUiThread(() -> {
+                    mWebView = new android.webkit.WebView(this);
+                    // IMPORTANTE: Algunos dispositivos requieren que el WebView esté en la jerarquía para imprimir
+                    mWebView.setVisibility(android.view.View.GONE);
+                    binding.getRoot().addView(mWebView);
+                    
+                    mWebView.getSettings().setJavaScriptEnabled(true);
+                    mWebView.getSettings().setDomStorageEnabled(true);
+                    
+                    mWebView.setWebViewClient(new android.webkit.WebViewClient() {
+                        @Override
+                        public void onPageFinished(android.webkit.WebView view, String url) {
+                            android.util.Log.d("DashboardActivity", "Página cargada. Renderizando...");
+                            // Dar tiempo para KaTeX
+                            view.postDelayed(() -> {
+                                if (mActiveDialog != null && mActiveDialog.isShowing()) {
+                                    binding.getRoot().removeCallbacks(timeoutRunnable);
+                                    mActiveDialog.dismiss();
+                                    printWebView(view);
+                                    // No removemos el view inmediatamente para dejar que el PrintManager lo use
+                                    view.postDelayed(() -> {
+                                        binding.getRoot().removeView(view);
+                                        mWebView = null;
+                                    }, 5000);
+                                }
+                            }, 3000); // 3 segundos para asegurar renderizado completo
+                        }
+
+                        @Override
+                        public void onReceivedError(android.webkit.WebView view, int errorCode, String description, String failingUrl) {
+                            binding.getRoot().removeCallbacks(timeoutRunnable);
+                            if (mActiveDialog != null) mActiveDialog.dismiss();
+                            Toast.makeText(DashboardActivity.this, "Error de red: " + description, Toast.LENGTH_LONG).show();
+                            binding.getRoot().removeView(view);
+                            mWebView = null;
+                        }
+                    });
+
+                    mWebView.loadDataWithBaseURL("https://cdn.jsdelivr.net/", htmlContent, "text/html", "UTF-8", null);
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    binding.getRoot().removeCallbacks(timeoutRunnable);
+                    if (mActiveDialog != null) mActiveDialog.dismiss();
+                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
             }
         });
-
-        String htmlContent = ExportUtils.exportToHtml(preguntas);
-        webView.loadDataWithBaseURL("https://cdn.jsdelivr.net/", htmlContent, "text/html", "UTF-8", null);
     }
 
     private void printWebView(android.webkit.WebView webView) {
         android.print.PrintManager printManager = (android.print.PrintManager) getSystemService(android.content.Context.PRINT_SERVICE);
         String jobName = getString(R.string.app_name) + " Document";
+        
+        // Usar el adaptador moderno
         android.print.PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter(jobName);
         
         if (printManager != null) {
