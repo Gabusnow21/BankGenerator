@@ -1,5 +1,6 @@
 package com.gabusdev.dev.quizbank.ui.questions;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,7 +90,10 @@ public class PreguntaAdapter extends RecyclerView.Adapter<PreguntaAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         PreguntaEntity question = filteredQuestions.get(position);
-        holder.binding.tvEnunciadoPreview.setText(question.enunciado);
+        
+        // Renderizado matemático
+        setupMathWebView(holder.binding.wvEnunciado, question.enunciado);
+        
         holder.binding.tvNivelTag.setText(question.nivel);
         
         // Aplicar color dinámico al tag
@@ -127,8 +131,32 @@ public class PreguntaAdapter extends RecyclerView.Adapter<PreguntaAdapter.ViewHo
         }
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
+    private void setupMathWebView(android.webkit.WebView webView, String text) {
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setDomStorageEnabled(true);
+        webView.setBackgroundColor(0); // Transparente
+        
+        String htmlTemplate = "<!DOCTYPE html><html><head>" +
+                "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css'>" +
+                "<script src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js'></script>" +
+                "<script src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js'></script>" +
+                "<style>body { font-size: 18px; color: white; background-color: transparent; padding: 0; margin: 0; display: flex; align-items: center; height: 100vh; font-family: sans-serif; font-weight: bold; overflow: hidden; }</style>" +
+                "</head><body><div id='mathContent'>" + text + "</div>" +
+                "<script>" +
+                "  renderMathInElement(document.body, {" +
+                "    delimiters: [" +
+                "      {left: '$$', right: '$$', display: true}," +
+                "      {left: '$', right: '$', display: false}" +
+                "    ]" +
+                "  });" +
+                "</script></body></html>";
+
+        webView.loadDataWithBaseURL("https://cdn.jsdelivr.net/", htmlTemplate, "text/html", "UTF-8", null);
+    }
+
     private int getTagColor(String level) {
-        if (level == null || level.isEmpty()) return 0xFF8E54E9; // Default purple
+        if (level == null || level.isEmpty()) return 0xFF8E54E9;
         int hash = level.hashCode();
         int[] colors = {0xFF00B0FF, 0xFF8E54E9, 0xFF00E676, 0xFFFFD600, 0xFFFF5252};
         return colors[Math.abs(hash) % colors.length];
