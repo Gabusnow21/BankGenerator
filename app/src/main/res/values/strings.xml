@@ -24,6 +24,17 @@
     <string name="dashboard_no_questions_export">No hay preguntas para exportar</string>
     <string name="dashboard_export_error">Error al exportar: %1$s</string>
     <string name="dashboard_share_chooser">Compartir Banco de Preguntas</string>
+    <string name="dashboard_export_count">Exportar (%1$d)</string>
+    <string name="dashboard_export_prompt">¿Qué deseas exportar?</string>
+    <string name="dashboard_export_full">Banco Completo</string>
+    <string name="dashboard_export_by_level">Por Nivel/Grado</string>
+    <string name="dashboard_export_manual">Selección Manual</string>
+    <string name="dashboard_selection_hint">Toca las preguntas que deseas incluir</string>
+    <string name="dashboard_select_level">Seleccionar Nivel</string>
+    <string name="dashboard_pdf_generating">Generando PDF</string>
+    <string name="dashboard_pdf_processing">Procesando fórmulas matemáticas... (Esto puede tardar unos segundos)</string>
+    <string name="dashboard_pdf_timeout">El proceso tardó demasiado. Revisa tu conexión a internet.</string>
+    <string name="filter_all">Todas</string>
     
     <!-- Logout Strings -->
     <string name="logout_title">Cerrar Sesión</string>
