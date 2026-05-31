@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gabusdev.dev.quizbank.R;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class PreguntaAdapter extends RecyclerView.Adapter<PreguntaAdapter.ViewHolder> {
     private List<PreguntaEntity> allQuestions = new ArrayList<>();
@@ -36,28 +38,34 @@ public class PreguntaAdapter extends RecyclerView.Adapter<PreguntaAdapter.ViewHo
 
     public void setQuestions(List<PreguntaEntity> questions) {
         this.allQuestions = questions;
-        this.filteredQuestions = new ArrayList<>(questions);
-        notifyDataSetChanged();
+        updateList(new ArrayList<>(questions));
     }
 
     public void filter(String level) {
-        filteredQuestions.clear();
+        List<PreguntaEntity> newList = new ArrayList<>();
         if (level == null || level.isEmpty() || level.equals("Todas")) {
-            filteredQuestions.addAll(allQuestions);
+            newList.addAll(allQuestions);
         } else {
             for (PreguntaEntity p : allQuestions) {
                 if (p.nivel != null && p.nivel.equals(level)) {
-                    filteredQuestions.add(p);
+                    newList.add(p);
                 }
             }
         }
-        notifyDataSetChanged();
+        updateList(newList);
+    }
+
+    private void updateList(List<PreguntaEntity> newList) {
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffCallback(this.filteredQuestions, newList));
+        this.filteredQuestions = newList;
+        diffResult.dispatchUpdatesTo(this);
     }
 
     public void setSelectionMode(boolean enabled) {
+        if (this.selectionMode == enabled) return;
         this.selectionMode = enabled;
         if (!enabled) selectedIds.clear();
-        notifyDataSetChanged();
+        notifyItemRangeChanged(0, getItemCount());
     }
 
     public List<PreguntaEntity> getSelectedQuestions() {
@@ -117,11 +125,45 @@ public class PreguntaAdapter extends RecyclerView.Adapter<PreguntaAdapter.ViewHo
         return filteredQuestions.size();
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         final ItemPreguntaBinding binding;
         ViewHolder(ItemPreguntaBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+        }
+    }
+
+    private static class DiffCallback extends DiffUtil.Callback {
+        private final List<PreguntaEntity> oldList;
+        private final List<PreguntaEntity> newList;
+
+        DiffCallback(List<PreguntaEntity> oldList, List<PreguntaEntity> newList) {
+            this.oldList = oldList;
+            this.newList = newList;
+        }
+
+        @Override
+        public int getOldListSize() {
+            return oldList.size();
+        }
+
+        @Override
+        public int getNewListSize() {
+            return newList.size();
+        }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+            return oldList.get(oldItemPosition).id == newList.get(newItemPosition).id;
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+            PreguntaEntity oldItem = oldList.get(oldItemPosition);
+            PreguntaEntity newItem = newList.get(newItemPosition);
+            return Objects.equals(oldItem.enunciado, newItem.enunciado) &&
+                    Objects.equals(oldItem.nivel, newItem.nivel) &&
+                    oldItem.fechaCreacion == newItem.fechaCreacion;
         }
     }
 }
