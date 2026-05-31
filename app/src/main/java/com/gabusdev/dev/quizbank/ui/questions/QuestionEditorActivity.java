@@ -1,9 +1,10 @@
 package com.gabusdev.dev.quizbank.ui.questions;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.gabusdev.dev.quizbank.R;
 import com.gabusdev.dev.quizbank.data.database.AppDatabase;
 import com.gabusdev.dev.quizbank.data.database.daos.PreguntaDao;
 import com.gabusdev.dev.quizbank.data.models.PreguntaEntity;
@@ -24,7 +25,6 @@ public class QuestionEditorActivity extends AppCompatActivity {
     private boolean isWebViewLoaded = false;
     private int questionId = -1;
 
-    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,8 +37,11 @@ public class QuestionEditorActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             if (questionId != -1) {
-                getSupportActionBar().setTitle("Editar Pregunta");
-                binding.btnSaveQuestion.setText("Actualizar Pregunta");
+                getSupportActionBar().setTitle(R.string.editor_title_edit);
+                binding.btnSaveQuestion.setText(R.string.editor_btn_update);
+            } else {
+                getSupportActionBar().setTitle(R.string.editor_title_new);
+                binding.btnSaveQuestion.setText(R.string.editor_btn_save);
             }
         }
         binding.toolbar.setNavigationOnClickListener(v -> finish());
@@ -71,19 +74,19 @@ public class QuestionEditorActivity extends AppCompatActivity {
         WebSettings settings = binding.wvPreview.getSettings();
         settings.setJavaScriptEnabled(true);
         
-        // Detectar si estamos en modo oscuro
         int nightModeFlags = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
         boolean isDarkMode = nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES;
         
-        String backgroundColor = isDarkMode ? "#1C1B1F" : "#FFFFFF"; // Surface color approx
-        String textColor = isDarkMode ? "#E6E1E5" : "#1A237E"; // OnSurface variant approx
+        String backgroundColor = isDarkMode ? "#1C1B1F" : "#FFFFFF";
+        String textColor = isDarkMode ? "#E6E1E5" : "#1A237E";
+        String placeholder = getString(R.string.editor_preview_placeholder);
 
         String htmlTemplate = "<!DOCTYPE html><html><head>" +
                 "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css'>" +
                 "<script src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js'></script>" +
                 "<script src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js'></script>" +
                 "<style>body { font-size: 16px; color: " + textColor + "; background-color: " + backgroundColor + "; padding: 5px; font-family: sans-serif; }</style>" +
-                "</head><body><div id='mathContent'>escribe para previsualizar...</div>" +
+                "</head><body><div id='mathContent'>" + placeholder + "</div>" +
                 "<script>" +
                 "function renderMath(text) {" +
                 "  var element = document.getElementById('mathContent');" +
@@ -125,7 +128,6 @@ public class QuestionEditorActivity extends AppCompatActivity {
 
     private void updateMathPreview(String text) {
         if (isWebViewLoaded) {
-            // Escapar comillas y saltos de línea para el JS
             String escapedText = text.replace("'", "\\'").replace("\n", "<br>");
             binding.wvPreview.evaluateJavascript("renderMath('" + escapedText + "')", null);
         }
@@ -138,14 +140,13 @@ public class QuestionEditorActivity extends AppCompatActivity {
         String justificacion = binding.etJustificacion.getText().toString().trim();
 
         if (enunciado.isEmpty() || respuesta.isEmpty()) {
-            Toast.makeText(this, "Por favor llena los campos obligatorios", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.editor_error_empty_fields, Toast.LENGTH_SHORT).show();
             return;
         }
 
         executorService.execute(() -> {
             PreguntaDao dao = AppDatabase.getInstance(this).preguntaDao();
             if (questionId != -1) {
-                // Actualizar existente
                 PreguntaEntity pregunta = dao.getPreguntaById(questionId);
                 if (pregunta != null) {
                     pregunta.nivel = nivel;
@@ -155,10 +156,9 @@ public class QuestionEditorActivity extends AppCompatActivity {
                     dao.updatePregunta(pregunta);
                 }
             } else {
-                // Crear nueva
                 PreguntaEntity pregunta = new PreguntaEntity(
                         enunciado,
-                        "[]", // Opciones JSON vacío por ahora
+                        "[]",
                         respuesta,
                         justificacion,
                         nivel
@@ -167,7 +167,7 @@ public class QuestionEditorActivity extends AppCompatActivity {
             }
             
             runOnUiThread(() -> {
-                Toast.makeText(this, questionId != -1 ? "Pregunta actualizada" : "Pregunta guardada", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, questionId != -1 ? R.string.editor_success_updated : R.string.editor_success_saved, Toast.LENGTH_SHORT).show();
                 finish();
             });
         });

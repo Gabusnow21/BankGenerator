@@ -38,7 +38,6 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
 
         setSupportActionBar(binding.toolbar);
         
-        // Inicializar Adapter y RecyclerView
         adapter = new PreguntaAdapter(this);
         binding.rvQuestions.setLayoutManager(new LinearLayoutManager(this));
         binding.rvQuestions.setAdapter(adapter);
@@ -72,18 +71,16 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
 
     private void showLogoutConfirmation() {
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle("Cerrar Sesión")
-                .setMessage("¿Estás seguro de que deseas cerrar sesión? Se borrarán tus datos de perfil local.")
-                .setPositiveButton("Cerrar Sesión", (dialog, which) -> logout())
-                .setNegativeButton("Cancelar", null)
+                .setTitle(R.string.logout_title)
+                .setMessage(R.string.logout_message)
+                .setPositiveButton(R.string.logout_btn_confirm, (dialog, which) -> logout())
+                .setNegativeButton(R.string.logout_btn_cancel, null)
                 .show();
     }
 
     private void logout() {
         executorService.execute(() -> {
-            // Borrar docente de la base de datos
             AppDatabase.getInstance(this).docenteDao().deleteDocente();
-            
             runOnUiThread(() -> {
                 Intent intent = new Intent(this, com.gabusdev.dev.quizbank.ui.auth.LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -96,7 +93,7 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
     private void showExportDialog() {
         String[] options = {"JSON", "Markdown (.md)", "LaTeX (.tex)", "PDF (.pdf)"};
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle("Seleccionar Formato de Exportación")
+                .setTitle(R.string.dashboard_export_title)
                 .setItems(options, (dialog, which) -> {
                     exportQuestions(which);
                 })
@@ -109,7 +106,7 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
                     AppDatabase.getInstance(this).preguntaDao().getAllPreguntas();
             
             if (preguntas.isEmpty()) {
-                runOnUiThread(() -> Toast.makeText(this, "No hay preguntas para exportar", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(this, R.string.dashboard_no_questions_export, Toast.LENGTH_SHORT).show());
                 return;
             }
 
@@ -143,7 +140,7 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
                 shareFile(fileUri, mimeType);
 
             } catch (Exception e) {
-                runOnUiThread(() -> Toast.makeText(this, "Error al exportar: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(this, getString(R.string.dashboard_export_error, e.getMessage()), Toast.LENGTH_SHORT).show());
             }
         });
     }
@@ -176,7 +173,7 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
         intent.setType(mimeType);
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivity(Intent.createChooser(intent, "Compartir Banco de Preguntas"));
+        startActivity(Intent.createChooser(intent, getString(R.string.dashboard_share_chooser)));
     }
 
     @Override
@@ -189,45 +186,39 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
     @Override
     public void onDelete(com.gabusdev.dev.quizbank.data.models.PreguntaEntity pregunta) {
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle("Eliminar Pregunta")
-                .setMessage("¿Estás seguro de que deseas eliminar esta pregunta?")
-                .setPositiveButton("Eliminar", (dialog, which) -> {
+                .setTitle(R.string.delete_dialog_title)
+                .setMessage(R.string.delete_dialog_message)
+                .setPositiveButton(R.string.item_btn_delete, (dialog, which) -> {
                     executorService.execute(() -> {
                         AppDatabase.getInstance(this).preguntaDao().deletePregunta(pregunta);
-                        loadTeacherInfo(); // Recargar lista
+                        loadTeacherInfo();
                     });
                 })
-                .setNegativeButton("Cancelar", null)
+                .setNegativeButton(R.string.logout_btn_cancel, null)
                 .show();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        loadTeacherInfo(); // Actualizar lista al volver
+        loadTeacherInfo();
     }
 
     private void loadTeacherInfo() {
         executorService.execute(() -> {
             DocenteEntity docente = AppDatabase.getInstance(this).docenteDao().getDocente();
-            java.util.List<com.gabusdev.dev.quizbank.data.models.PreguntaEntity> preguntas = 
+            List<PreguntaEntity> preguntas = 
                     AppDatabase.getInstance(this).preguntaDao().getAllPreguntas();
-            
-            android.util.Log.d("DashboardActivity", "Preguntas cargadas: " + preguntas.size());
             
             runOnUiThread(() -> {
                 if (docente != null) {
-                    binding.tvWelcome.setText("Bienvenido, " + docente.nombre);
+                    binding.tvWelcome.setText(getString(R.string.dashboard_welcome, docente.nombre));
                 }
-                binding.tvStats.setText("Tienes " + preguntas.size() + " preguntas en tu banco");
+                binding.tvStats.setText(getString(R.string.dashboard_stats, preguntas.size()));
                 if (adapter != null) {
                     adapter.setQuestions(preguntas);
-                    android.util.Log.d("DashboardActivity", "Adapter actualizado con " + preguntas.size() + " ítems");
-                } else {
-                    android.util.Log.e("DashboardActivity", "El adapter es NULO");
                 }
             });
         });
     }
 }
-

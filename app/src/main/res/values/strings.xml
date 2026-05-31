@@ -1,3 +1,56 @@
 <resources>
     <string name="app_name">QuizBank</string>
+    
+    <!-- Login Strings -->
+    <string name="login_tagline">Gestión de cuestionarios matemáticos</string>
+    <string name="login_header_registration">Registro de Docente</string>
+    <string name="login_hint_name">Nombre Completo</string>
+    <string name="login_hint_institution">Institución (Opcional)</string>
+    <string name="login_btn_start">Comenzar a Crear</string>
+    <string name="login_or_label">O también puedes usar</string>
+    <string name="login_btn_google">Continuar con Google</string>
+    <string name="login_footer_note">Acceso exclusivo para docentes y educadores</string>
+    <string name="login_error_name_empty">Por favor, ingresa tu nombre</string>
+    <string name="login_error_google">Error al iniciar sesión con Google</string>
+    <string name="login_institucion_default">Institución Independiente</string>
+    <string name="login_institucion_google">Institución vía Google</string>
+
+    <!-- Dashboard Strings -->
+    <string name="dashboard_welcome">Bienvenido, %1$s</string>
+    <string name="dashboard_stats">Tienes %1$d preguntas en tu banco</string>
+    <string name="dashboard_recent_questions">Mis Preguntas Recientes</string>
+    <string name="dashboard_new_question">Nueva Pregunta</string>
+    <string name="dashboard_export_title">Seleccionar Formato de Exportación</string>
+    <string name="dashboard_no_questions_export">No hay preguntas para exportar</string>
+    <string name="dashboard_export_error">Error al exportar: %1$s</string>
+    <string name="dashboard_share_chooser">Compartir Banco de Preguntas</string>
+    
+    <!-- Logout Strings -->
+    <string name="logout_title">Cerrar Sesión</string>
+    <string name="logout_message">¿Estás seguro de que deseas cerrar sesión? Se borrarán tus datos de perfil local.</string>
+    <string name="logout_btn_confirm">Cerrar Sesión</string>
+    <string name="logout_btn_cancel">Cancelar</string>
+
+    <!-- Question Editor Strings -->
+    <string name="editor_title_new">Nueva Pregunta</string>
+    <string name="editor_title_edit">Editar Pregunta</string>
+    <string name="editor_hint_level">Nivel / Grado (ej. 8vo Grado)</string>
+    <string name="editor_hint_enunciado">Enunciado (Soporta $...$ para LaTeX)</string>
+    <string name="editor_preview_label">Previsualización:</string>
+    <string name="editor_preview_placeholder">escribe para previsualizar...</string>
+    <string name="editor_hint_answer">Respuesta Correcta</string>
+    <string name="editor_hint_justification">Justificación (para NotebookLM)</string>
+    <string name="editor_btn_save">Guardar Pregunta</string>
+    <string name="editor_btn_update">Actualizar Pregunta</string>
+    <string name="editor_error_empty_fields">Por favor llena los campos obligatorios</string>
+    <string name="editor_success_saved">Pregunta guardada</string>
+    <string name="editor_success_updated">Pregunta actualizada</string>
+
+    <!-- Question Item Strings -->
+    <string name="item_created_at">Creado el %1$s</string>
+    <string name="item_btn_edit">Editar</string>
+    <string name="item_btn_delete">Eliminar</string>
+    <string name="delete_dialog_title">Eliminar Pregunta</string>
+    <string name="delete_dialog_message">¿Estás seguro de que deseas eliminar esta pregunta?</string>
+
 </resources>

@@ -13,7 +13,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@android:drawable/ic_menu_revert"
-            app:title="Nueva Pregunta" />
+            app:title="@string/editor_title_new" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -33,7 +33,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:hint="Nivel / Grado (ej. 8vo Grado)">
+                android:hint="@string/editor_hint_level">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_nivel"
@@ -46,7 +46,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:hint="Enunciado (Soporta $...$ para LaTeX)">
+                android:hint="@string/editor_hint_enunciado">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_enunciado"
@@ -56,12 +56,12 @@
                     android:minLines="3" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Previsualización Matemática (Placeholder) -->
+            <!-- Previsualización Matemática -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Previsualización:"
+                android:text="@string/editor_preview_label"
                 android:textAppearance="@style/TextAppearance.Material3.LabelLarge" />
 
             <com.google.android.material.card.MaterialCardView
@@ -82,7 +82,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:hint="Respuesta Correcta">
+                android:hint="@string/editor_hint_answer">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_respuesta_correcta"
@@ -95,7 +95,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                android:hint="Justificación (para NotebookLM)">
+                android:hint="@string/editor_hint_justification">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_justificacion"
@@ -110,7 +110,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="12dp"
-                android:text="Guardar Pregunta" />
+                android:text="@string/editor_btn_save" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

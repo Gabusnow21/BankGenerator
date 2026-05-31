@@ -9,6 +9,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.gabusdev.dev.quizbank.R;
 import com.gabusdev.dev.quizbank.data.database.AppDatabase;
 import com.gabusdev.dev.quizbank.data.models.DocenteEntity;
 import com.gabusdev.dev.quizbank.data.repositories.AuthRepository;
@@ -59,15 +60,15 @@ public class LoginActivity extends AppCompatActivity {
         String institucion = binding.etInstitucion.getText().toString().trim();
 
         if (nombre.isEmpty()) {
-            Toast.makeText(this, "Por favor, ingresa tu nombre", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.login_error_name_empty, Toast.LENGTH_SHORT).show();
             return;
         }
 
         executorService.execute(() -> {
             DocenteEntity docente = new DocenteEntity(
                     nombre,
-                    "local_user@quizbank.app", // Email ficticio para uso local
-                    institucion.isEmpty() ? "Institución Independiente" : institucion,
+                    "local_user@quizbank.app",
+                    institucion.isEmpty() ? getString(R.string.login_institucion_default) : institucion,
                     System.currentTimeMillis()
             );
             AppDatabase.getInstance(this).docenteDao().insertDocente(docente);
@@ -92,7 +93,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         } catch (ApiException e) {
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
-            Toast.makeText(this, "Error al iniciar sesión con Google", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.login_error_google, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -101,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
             DocenteEntity docente = new DocenteEntity(
                     account.getDisplayName(),
                     account.getEmail(),
-                    "Institución vía Google",
+                    getString(R.string.login_institucion_google),
                     System.currentTimeMillis()
             );
             AppDatabase.getInstance(this).docenteDao().insertDocente(docente);

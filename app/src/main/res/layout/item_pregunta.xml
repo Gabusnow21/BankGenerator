@@ -21,7 +21,6 @@
             android:background="@drawable/bg_tag_level"
             android:paddingHorizontal="8dp"
             android:paddingVertical="2dp"
-            android:text="8vo Grado"
             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
             android:textColor="@color/primary" />
 
@@ -32,7 +31,6 @@
             android:layout_marginTop="8dp"
             android:ellipsize="end"
             android:maxLines="2"
-            android:text="¿Cuál es la solución de $x^2 + 2x + 1 = 0$?"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
             android:textColor="?attr/colorOnSurface" />
 
@@ -41,7 +39,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Creado el 30/05/2026"
             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
             android:textColor="?attr/colorOnSurfaceVariant" />
 
@@ -57,7 +54,7 @@
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Editar"
+                android:text="@string/item_btn_edit"
                 app:icon="@android:drawable/ic_menu_edit" />
 
             <com.google.android.material.button.MaterialButton
@@ -65,7 +62,7 @@
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Eliminar"
+                android:text="@string/item_btn_delete"
                 android:textColor="@color/error"
                 app:icon="@android:drawable/ic_menu_delete"
                 app:iconTint="@color/error" />
