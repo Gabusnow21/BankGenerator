@@ -59,11 +59,38 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_export) {
+        int id = item.getItemId();
+        if (id == R.id.action_export) {
             showExportDialog();
+            return true;
+        } else if (id == R.id.action_logout) {
+            showLogoutConfirmation();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showLogoutConfirmation() {
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Cerrar Sesión")
+                .setMessage("¿Estás seguro de que deseas cerrar sesión? Se borrarán tus datos de perfil local.")
+                .setPositiveButton("Cerrar Sesión", (dialog, which) -> logout())
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private void logout() {
+        executorService.execute(() -> {
+            // Borrar docente de la base de datos
+            AppDatabase.getInstance(this).docenteDao().deleteDocente();
+            
+            runOnUiThread(() -> {
+                Intent intent = new Intent(this, com.gabusdev.dev.quizbank.ui.auth.LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            });
+        });
     }
 
     private void showExportDialog() {
