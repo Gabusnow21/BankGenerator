@@ -1,5 +1,6 @@
 package com.gabusdev.dev.quizbank.ui.dashboard;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -93,7 +94,7 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
     @Override
     public void onSelectionChanged(int count) {
         if (adapter != null && count > 0) {
-            binding.fabAddQuestion.setText("Exportar (" + count + ")");
+            binding.fabAddQuestion.setText(getString(R.string.dashboard_export_count, count));
             binding.fabAddQuestion.setIconResource(android.R.drawable.ic_menu_share);
         } else {
             binding.fabAddQuestion.setText(R.string.dashboard_new_question);
@@ -105,7 +106,7 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
         binding.chipGroupFilters.removeAllViews();
         
         com.google.android.material.chip.Chip chipAll = new com.google.android.material.chip.Chip(this);
-        chipAll.setText("Todas");
+        chipAll.setText(R.string.filter_all);
         chipAll.setCheckable(true);
         chipAll.setChecked(true);
         chipAll.setOnClickListener(v -> adapter.filter(null));
@@ -126,9 +127,13 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
     }
 
     private void showExportDialog() {
-        String[] options = {"Banco Completo", "Por Nivel/Grado", "Selección Manual"};
+        String[] options = {
+                getString(R.string.dashboard_export_full),
+                getString(R.string.dashboard_export_by_level),
+                getString(R.string.dashboard_export_manual)
+        };
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle("¿Qué deseas exportar?")
+                .setTitle(R.string.dashboard_export_prompt)
                 .setItems(options, (dialog, which) -> {
                     switch (which) {
                         case 0: showFormatDialog(null); break;
@@ -141,7 +146,7 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
 
     private void enterSelectionMode() {
         adapter.setSelectionMode(true);
-        Toast.makeText(this, "Toca las preguntas que deseas incluir", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, R.string.dashboard_selection_hint, Toast.LENGTH_LONG).show();
         binding.fabAddQuestion.setOnClickListener(v -> {
             List<PreguntaEntity> seleccion = adapter.getSelectedQuestions();
             if (seleccion.isEmpty()) {
@@ -171,7 +176,7 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
 
             runOnUiThread(() -> {
                 new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                        .setTitle("Seleccionar Nivel")
+                        .setTitle(R.string.dashboard_select_level)
                         .setItems(niveles, (dialog, which) -> {
                             String selectedLevel = niveles[which];
                             filterAndExport(selectedLevel);
@@ -285,8 +290,8 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
     private void createWebPrintJob(List<PreguntaEntity> preguntas) {
         // Mostrar diálogo de carga
         mActiveDialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle("Generando PDF")
-                .setMessage("Procesando fórmulas matemáticas... (Esto puede tardar unos segundos)")
+                .setTitle(R.string.dashboard_pdf_generating)
+                .setMessage(R.string.dashboard_pdf_processing)
                 .setCancelable(false)
                 .show();
 
@@ -294,7 +299,7 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
         final Runnable timeoutRunnable = () -> {
             if (mActiveDialog != null && mActiveDialog.isShowing()) {
                 mActiveDialog.dismiss();
-                Toast.makeText(this, "El proceso tardó demasiado. Revisa tu conexión a internet.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.dashboard_pdf_timeout, Toast.LENGTH_LONG).show();
                 if (mWebView != null) {
                     binding.getRoot().removeView(mWebView);
                     mWebView = null;
@@ -314,8 +319,7 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
                     mWebView.setVisibility(android.view.View.GONE);
                     binding.getRoot().addView(mWebView);
                     
-                    mWebView.getSettings().setJavaScriptEnabled(true);
-                    mWebView.getSettings().setDomStorageEnabled(true);
+                    configureWebView(mWebView);
                     
                     mWebView.setWebViewClient(new android.webkit.WebViewClient() {
                         @Override
@@ -337,10 +341,10 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
                         }
 
                         @Override
-                        public void onReceivedError(android.webkit.WebView view, int errorCode, String description, String failingUrl) {
+                        public void onReceivedError(android.webkit.WebView view, android.webkit.WebResourceRequest request, android.webkit.WebResourceError error) {
                             binding.getRoot().removeCallbacks(timeoutRunnable);
                             if (mActiveDialog != null) mActiveDialog.dismiss();
-                            Toast.makeText(DashboardActivity.this, "Error de red: " + description, Toast.LENGTH_LONG).show();
+                            Toast.makeText(DashboardActivity.this, "Error de red: " + error.getDescription(), Toast.LENGTH_LONG).show();
                             binding.getRoot().removeView(view);
                             mWebView = null;
                         }
@@ -356,6 +360,12 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
                 });
             }
         });
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private void configureWebView(android.webkit.WebView webView) {
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setDomStorageEnabled(true);
     }
 
     private void printWebView(android.webkit.WebView webView) {
@@ -390,12 +400,10 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.delete_dialog_title)
                 .setMessage(R.string.delete_dialog_message)
-                .setPositiveButton(R.string.item_btn_delete, (dialog, which) -> {
-                    executorService.execute(() -> {
-                        AppDatabase.getInstance(this).preguntaDao().deletePregunta(pregunta);
-                        loadTeacherInfo();
-                    });
-                })
+                .setPositiveButton(R.string.item_btn_delete, (dialog, which) -> executorService.execute(() -> {
+                    AppDatabase.getInstance(this).preguntaDao().deletePregunta(pregunta);
+                    loadTeacherInfo();
+                }))
                 .setNegativeButton(R.string.logout_btn_cancel, null)
                 .show();
     }
