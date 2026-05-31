@@ -6,4 +6,9 @@
         android:icon="@android:drawable/ic_menu_share"
         android:title="Exportar"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_logout"
+        android:icon="@android:drawable/ic_lock_power_off"
+        android:title="Cerrar Sesión"
+        app:showAsAction="never" />
 </menu>

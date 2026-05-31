@@ -71,11 +71,18 @@ public class QuestionEditorActivity extends AppCompatActivity {
         WebSettings settings = binding.wvPreview.getSettings();
         settings.setJavaScriptEnabled(true);
         
+        // Detectar si estamos en modo oscuro
+        int nightModeFlags = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+        boolean isDarkMode = nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+        
+        String backgroundColor = isDarkMode ? "#1C1B1F" : "#FFFFFF"; // Surface color approx
+        String textColor = isDarkMode ? "#E6E1E5" : "#1A237E"; // OnSurface variant approx
+
         String htmlTemplate = "<!DOCTYPE html><html><head>" +
                 "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css'>" +
                 "<script src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js'></script>" +
                 "<script src='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js'></script>" +
-                "<style>body { font-size: 16px; color: #1A237E; padding: 5px; font-family: sans-serif; }</style>" +
+                "<style>body { font-size: 16px; color: " + textColor + "; background-color: " + backgroundColor + "; padding: 5px; font-family: sans-serif; }</style>" +
                 "</head><body><div id='mathContent'>escribe para previsualizar...</div>" +
                 "<script>" +
                 "function renderMath(text) {" +

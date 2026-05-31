@@ -34,7 +34,7 @@
             android:maxLines="2"
             android:text="¿Cuál es la solución de $x^2 + 2x + 1 = 0$?"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-            android:textColor="@color/black" />
+            android:textColor="?attr/colorOnSurface" />
 
         <TextView
             android:id="@+id/tv_fecha"
@@ -43,7 +43,7 @@
             android:layout_marginTop="12dp"
             android:text="Creado el 30/05/2026"
             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-            android:textColor="@color/secondary_light" />
+            android:textColor="?attr/colorOnSurfaceVariant" />
 
         <LinearLayout
             android:layout_width="match_parent"
