@@ -91,6 +91,13 @@ public class PreguntaAdapter extends RecyclerView.Adapter<PreguntaAdapter.ViewHo
         PreguntaEntity question = filteredQuestions.get(position);
         holder.binding.tvEnunciadoPreview.setText(question.enunciado);
         holder.binding.tvNivelTag.setText(question.nivel);
+        
+        // Aplicar color dinámico al tag
+        int color = getTagColor(question.nivel);
+        if (holder.binding.tvNivelTag.getBackground() != null) {
+            holder.binding.tvNivelTag.getBackground().setTint(color);
+        }
+
         holder.binding.tvFecha.setText(holder.itemView.getContext().getString(R.string.item_created_at, dateFormat.format(new Date(question.fechaCreacion))));
 
         holder.binding.btnEdit.setOnClickListener(v -> listener.onEdit(question));
@@ -120,14 +127,21 @@ public class PreguntaAdapter extends RecyclerView.Adapter<PreguntaAdapter.ViewHo
         }
     }
 
+    private int getTagColor(String level) {
+        if (level == null || level.isEmpty()) return 0xFF8E54E9; // Default purple
+        int hash = level.hashCode();
+        int[] colors = {0xFF00B0FF, 0xFF8E54E9, 0xFF00E676, 0xFFFFD600, 0xFFFF5252};
+        return colors[Math.abs(hash) % colors.length];
+    }
+
     @Override
     public int getItemCount() {
         return filteredQuestions.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        final ItemPreguntaBinding binding;
-        ViewHolder(ItemPreguntaBinding binding) {
+        public final ItemPreguntaBinding binding;
+        public ViewHolder(ItemPreguntaBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }

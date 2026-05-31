@@ -425,6 +425,7 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
                     binding.tvWelcome.setText(getString(R.string.dashboard_welcome, docente.nombre));
                 }
                 binding.tvStats.setText(getString(R.string.dashboard_stats, preguntas.size()));
+                binding.tvStatsCount.setText(String.valueOf(preguntas.size()));
                 if (adapter != null) {
                     adapter.setQuestions(preguntas);
                     setupFilters(preguntas);
