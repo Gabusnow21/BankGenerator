@@ -34,6 +34,11 @@
     <string name="dashboard_pdf_generating">Generando PDF</string>
     <string name="dashboard_pdf_processing">Procesando fórmulas matemáticas... (Esto puede tardar unos segundos)</string>
     <string name="dashboard_pdf_timeout">El proceso tardó demasiado. Revisa tu conexión a internet.</string>
+    <string name="dashboard_error_generic">Error: %1$s</string>
+    <string name="export_format_json">JSON</string>
+    <string name="export_format_md">Markdown (.md)</string>
+    <string name="export_format_latex">LaTeX (.tex)</string>
+    <string name="export_format_pdf">PDF (.pdf)</string>
     <string name="filter_all">Todas</string>
     
     <!-- Logout Strings -->

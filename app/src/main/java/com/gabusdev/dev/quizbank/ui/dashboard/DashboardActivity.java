@@ -198,7 +198,12 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
     }
 
     private void showFormatDialog(List<PreguntaEntity> specificList) {
-        String[] formats = {"JSON", "Markdown (.md)", "LaTeX (.tex)", "PDF (.pdf)"};
+        String[] formats = {
+                getString(R.string.export_format_json),
+                getString(R.string.export_format_md),
+                getString(R.string.export_format_latex),
+                getString(R.string.export_format_pdf)
+        };
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dashboard_export_title)
                 .setItems(formats, (dialog, which) -> {
@@ -234,7 +239,7 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
                 String finalMimeType = mimeType;
                 runOnUiThread(() -> shareFile(fileUri, finalMimeType));
             } catch (Exception e) {
-                runOnUiThread(() -> Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(this, getString(R.string.dashboard_error_generic, e.getMessage()), Toast.LENGTH_SHORT).show());
             }
         });
     }
