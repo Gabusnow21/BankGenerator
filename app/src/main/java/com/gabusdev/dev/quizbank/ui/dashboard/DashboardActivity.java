@@ -24,7 +24,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import com.gabusdev.dev.quizbank.core.export.ExportUtils;
 import com.gabusdev.dev.quizbank.core.utils.FileHelper;
+import com.gabusdev.dev.quizbank.core.drive.DriveServiceHelper;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.DriveScopes;
+
 import android.net.Uri;
+import java.util.Collections;
 
 public class DashboardActivity extends AppCompatActivity implements PreguntaAdapter.OnQuestionActionListener {
     private ActivityDashboardBinding binding;
@@ -236,8 +246,9 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
                 }
 
                 Uri fileUri = FileHelper.saveAndGetUri(this, content, fileName);
+                String finalFileName = fileName;
                 String finalMimeType = mimeType;
-                runOnUiThread(() -> shareFile(fileUri, finalMimeType));
+                runOnUiThread(() -> handleExportedFile(fileUri, finalFileName, finalMimeType));
             } catch (Exception e) {
                 runOnUiThread(() -> Toast.makeText(this, getString(R.string.dashboard_error_generic, e.getMessage()), Toast.LENGTH_SHORT).show());
             }
@@ -281,10 +292,81 @@ public class DashboardActivity extends AppCompatActivity implements PreguntaAdap
                 }
 
                 Uri fileUri = FileHelper.saveAndGetUri(this, content, fileName);
-                shareFile(fileUri, mimeType);
+                String finalFileName = fileName;
+                String finalMimeType = mimeType;
+                runOnUiThread(() -> handleExportedFile(fileUri, finalFileName, finalMimeType));
 
             } catch (Exception e) {
                 runOnUiThread(() -> Toast.makeText(this, getString(R.string.dashboard_export_error, e.getMessage()), Toast.LENGTH_SHORT).show());
+            }
+        });
+    }
+
+    private void handleExportedFile(Uri uri, String fileName, String mimeType) {
+        String[] options = {
+                getString(R.string.sync_destination_share),
+                getString(R.string.sync_destination_drive)
+        };
+
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.sync_destination_title)
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        shareFile(uri, mimeType);
+                    } else {
+                        uploadToDrive(uri, fileName, mimeType);
+                    }
+                })
+                .show();
+    }
+
+    private void uploadToDrive(Uri uri, String fileName, String mimeType) {
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if (account == null) {
+            Toast.makeText(this, R.string.sync_drive_no_account, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mActiveDialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.sync_drive_uploading)
+                .setMessage(R.string.sync_drive_uploading)
+                .setCancelable(false)
+                .show();
+
+        executorService.execute(() -> {
+            try {
+                GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
+                        this, Collections.singletonList(DriveScopes.DRIVE_FILE));
+                credential.setSelectedAccount(account.getAccount());
+
+                Drive driveService = new Drive.Builder(
+                        AndroidHttp.newCompatibleTransport(),
+                        new GsonFactory(),
+                        credential)
+                        .setApplicationName(getString(R.string.app_name))
+                        .build();
+
+                DriveServiceHelper driveHelper = new DriveServiceHelper(driveService);
+                
+                // 1. Obtener o crear carpeta
+                String folderId = driveHelper.getOrCreateRootFolder();
+                
+                // 2. Obtener archivo local
+                java.io.File localFile = FileHelper.getFileFromUri(this, uri);
+                
+                // 3. Subir
+                driveHelper.uploadFileToFolder(folderId, fileName, mimeType, localFile);
+
+                runOnUiThread(() -> {
+                    if (mActiveDialog != null) mActiveDialog.dismiss();
+                    Toast.makeText(this, R.string.sync_drive_success, Toast.LENGTH_LONG).show();
+                });
+
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    if (mActiveDialog != null) mActiveDialog.dismiss();
+                    Toast.makeText(this, getString(R.string.sync_drive_error, e.getMessage()), Toast.LENGTH_SHORT).show();
+                });
             }
         });
     }
