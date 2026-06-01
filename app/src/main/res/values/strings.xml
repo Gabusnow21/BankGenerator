@@ -79,4 +79,13 @@
     <string name="delete_dialog_title">Eliminar Pregunta</string>
     <string name="delete_dialog_message">¿Estás seguro de que deseas eliminar esta pregunta?</string>
 
+    <!-- Drive Sync Strings -->
+    <string name="sync_destination_title">Destino del Archivo</string>
+    <string name="sync_destination_share">Compartir con otras apps</string>
+    <string name="sync_destination_drive">Subir a Google Drive (NotebookLM)</string>
+    <string name="sync_drive_uploading">Subiendo a Google Drive...</string>
+    <string name="sync_drive_success">Archivo subido correctamente a NotebookLM_Math_Sources</string>
+    <string name="sync_drive_error">Error al subir a Drive: %1$s</string>
+    <string name="sync_drive_no_account">No se encontró una cuenta de Google activa para Drive</string>
+
 </resources>
