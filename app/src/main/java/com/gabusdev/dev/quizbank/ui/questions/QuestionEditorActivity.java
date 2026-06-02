@@ -21,6 +21,7 @@ import java.util.concurrent.Executors;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.content.SharedPreferences;
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import com.google.android.material.button.MaterialButton;
@@ -63,6 +64,13 @@ public class QuestionEditorActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         binding.toolbar.setNavigationOnClickListener(v -> handleBackNavigation());
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                handleBackNavigation();
+            }
+        });
 
         binding.btnNext.setOnClickListener(v -> goToStep2());
         binding.btnSaveQuestion.setOnClickListener(v -> saveQuestion());
@@ -137,15 +145,6 @@ public class QuestionEditorActivity extends AppCompatActivity {
             goToStep1();
         } else {
             finish();
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (currentStep == 2) {
-            goToStep1();
-        } else {
-            super.onBackPressed();
         }
     }
 
