@@ -108,35 +108,72 @@
                         android:textColorHint="#80FFFFFF" />
                 </com.google.android.material.card.MaterialCardView>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+                
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:text="Enunciado (supports LaTeX)"
                     android:textColor="@color/white"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp" />
+                    android:textStyle="bold" />
 
-                <com.google.android.material.card.MaterialCardView
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_macros"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Macros"
+                    android:textColor="#B0B0B0"
+                    android:textSize="12sp"
+                    android:checked="true"
+                    app:useMaterialThemeColors="true" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_scan_ocr"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Escanear Pregunta"
+                android:textColor="@color/tag_blue"
+                app:strokeColor="@color/tag_blue"
+                app:icon="@android:drawable/ic_menu_camera"
+                app:iconTint="@color/tag_blue"
+                android:layout_marginBottom="8dp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="@color/navy_card"
+                app:cardCornerRadius="12dp"
+                app:strokeColor="@color/accent_purple"
+                app:strokeWidth="1dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_enunciado"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="24dp"
-                    app:cardBackgroundColor="@color/navy_card"
-                    app:cardCornerRadius="12dp"
-                    app:strokeColor="@color/accent_purple"
-                    app:strokeWidth="1dp">
+                    android:background="@android:color/transparent"
+                    android:gravity="top"
+                    android:hint="@string/editor_hint_enunciado_placeholder"
+                    android:minLines="5"
+                    android:padding="16dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="#80FFFFFF" />
+            </com.google.android.material.card.MaterialCardView>
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_enunciado"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:gravity="top"
-                        android:hint="@string/editor_hint_enunciado_placeholder"
-                        android:minLines="5"
-                        android:padding="16dp"
-                        android:textColor="@color/white"
-                        android:textColorHint="#80FFFFFF" />
-                </com.google.android.material.card.MaterialCardView>
+            <include
+                android:id="@+id/layout_macros"
+                layout="@layout/layout_macro_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp" />
 
                 <TextView
                     android:layout_width="wrap_content"

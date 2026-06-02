@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/macro_bar_scroll"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/navy_card"
+    android:padding="8dp"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:id="@+id/macro_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_macro_frac"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="\\frac{}{}"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:rippleColor="@color/accent_purple" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_macro_sqrt"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="\\sqrt{}"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:rippleColor="@color/accent_purple" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_macro_pow"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="^{}"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:rippleColor="@color/accent_purple" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_macro_sub"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="_{}"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:rippleColor="@color/accent_purple" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_macro_pm"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="\\pm"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:rippleColor="@color/accent_purple" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_macro_times"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="\\times"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:rippleColor="@color/accent_purple" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_macro_alpha"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="\\alpha"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:rippleColor="@color/accent_purple" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_macro_beta"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="\\beta"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:rippleColor="@color/accent_purple" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_macro_sum"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="\\sum_{}^{}"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:rippleColor="@color/accent_purple" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_macro_int"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="\\int_{}^{}"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:rippleColor="@color/accent_purple" />
+
+    </LinearLayout>
+</HorizontalScrollView>
