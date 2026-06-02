@@ -71,6 +71,18 @@
     <string name="editor_hint_answer_placeholder">Escribe la respuesta...</string>
     <string name="editor_hint_justification_placeholder">Explica la respuesta...</string>
     <string name="editor_select_grade">Seleccionar grado</string>
+    <string name="editor_step_2_indicator">Paso 2</string>
+    <string name="editor_label_grade">Grado</string>
+    <string name="editor_label_enunciado">Enunciado (soporta LaTeX)</string>
+    <string name="editor_label_macros">Macros</string>
+    <string name="editor_btn_scan_ocr">Escanear Pregunta</string>
+    <string name="editor_label_preview">Previsualización</string>
+    <string name="editor_label_answer">Respuesta Correcta</string>
+    <string name="editor_label_justification">Justificación</string>
+
+    <!-- OCR Strings -->
+    <string name="ocr_error_recognition">Error al reconocer texto: %1$s</string>
+    <string name="ocr_error_permissions">Permisos no concedidos por el usuario.</string>
 
     <!-- Question Item Strings -->
     <string name="item_created_at">Creado el %1$s</string>

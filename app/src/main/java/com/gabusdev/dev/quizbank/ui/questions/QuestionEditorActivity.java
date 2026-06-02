@@ -27,6 +27,10 @@ import com.google.android.material.button.MaterialButton;
 
 public class QuestionEditorActivity extends AppCompatActivity {
     public static final String EXTRA_QUESTION_ID = "extra_question_id";
+    private static final String PREFS_NAME = "quizbank_prefs";
+    private static final String PREF_SHOW_MACROS = "show_macros";
+    private static final String DEFAULT_OPTIONS_JSON = "[]";
+
     private ActivityQuestionEditorBinding binding;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private boolean isWebViewLoaded = false;
@@ -74,15 +78,15 @@ public class QuestionEditorActivity extends AppCompatActivity {
     }
 
     private void setupMacrosAndOcr() {
-        SharedPreferences prefs = getSharedPreferences("quizbank_prefs", MODE_PRIVATE);
-        boolean showMacros = prefs.getBoolean("show_macros", true);
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean showMacros = prefs.getBoolean(PREF_SHOW_MACROS, true);
         
         binding.switchMacros.setChecked(showMacros);
         binding.layoutMacros.getRoot().setVisibility(showMacros ? View.VISIBLE : View.GONE);
 
         binding.switchMacros.setOnCheckedChangeListener((buttonView, isChecked) -> {
             binding.layoutMacros.getRoot().setVisibility(isChecked ? View.VISIBLE : View.GONE);
-            prefs.edit().putBoolean("show_macros", isChecked).apply();
+            prefs.edit().putBoolean(PREF_SHOW_MACROS, isChecked).apply();
         });
 
         binding.btnScanOcr.setOnClickListener(v -> {
@@ -96,20 +100,22 @@ public class QuestionEditorActivity extends AppCompatActivity {
     private void setupMacroButtons() {
         // Find buttons in the included layout
         View macroBar = binding.layoutMacros.getRoot();
-        setupMacroButton(macroBar.findViewById(R.id.btn_macro_frac), "\\frac{}{}");
-        setupMacroButton(macroBar.findViewById(R.id.btn_macro_sqrt), "\\sqrt{}");
-        setupMacroButton(macroBar.findViewById(R.id.btn_macro_pow), "^{}");
-        setupMacroButton(macroBar.findViewById(R.id.btn_macro_sub), "_{}");
-        setupMacroButton(macroBar.findViewById(R.id.btn_macro_pm), "\\pm");
-        setupMacroButton(macroBar.findViewById(R.id.btn_macro_times), "\\times");
-        setupMacroButton(macroBar.findViewById(R.id.btn_macro_alpha), "\\alpha");
-        setupMacroButton(macroBar.findViewById(R.id.btn_macro_beta), "\\beta");
-        setupMacroButton(macroBar.findViewById(R.id.btn_macro_sum), "\\sum_{}^{}");
-        setupMacroButton(macroBar.findViewById(R.id.btn_macro_int), "\\int_{}^{}");
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_frac));
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_sqrt));
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_pow));
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_sub));
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_pm));
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_times));
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_alpha));
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_beta));
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_sum));
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_int));
     }
 
-    private void setupMacroButton(View button, String macro) {
-        if (button != null) {
+    private void setupMacroButton(View view) {
+        if (view instanceof MaterialButton) {
+            MaterialButton button = (MaterialButton) view;
+            String macro = button.getText().toString();
             button.setOnClickListener(v -> insertTextAtCursor(macro));
         }
     }
@@ -272,7 +278,7 @@ public class QuestionEditorActivity extends AppCompatActivity {
             } else {
                 PreguntaEntity pregunta = new PreguntaEntity(
                         enunciado,
-                        "[]",
+                        DEFAULT_OPTIONS_JSON,
                         respuesta,
                         justificacion,
                         nivel

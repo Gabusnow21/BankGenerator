@@ -19,6 +19,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.gabusdev.dev.quizbank.R;
 import com.gabusdev.dev.quizbank.databinding.ActivityOcrCaptureBinding;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
@@ -33,6 +34,7 @@ import java.util.concurrent.Executors;
 @androidx.annotation.OptIn(markerClass = androidx.camera.core.ExperimentalGetImage.class)
 public class OcrCaptureActivity extends AppCompatActivity {
     public static final String EXTRA_EXTRACTED_TEXT = "extra_extracted_text";
+    private static final String TAG = "OcrCapture";
     private static final int REQUEST_CODE_PERMISSIONS = 10;
     private static final String[] REQUIRED_PERMISSIONS = new String[]{Manifest.permission.CAMERA};
 
@@ -74,7 +76,7 @@ public class OcrCaptureActivity extends AppCompatActivity {
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
 
             } catch (ExecutionException | InterruptedException e) {
-                Log.e("OcrCapture", "Use case binding failed", e);
+                Log.e(TAG, "Use case binding failed", e);
             }
         }, ContextCompat.getMainExecutor(this));
     }
@@ -93,7 +95,7 @@ public class OcrCaptureActivity extends AppCompatActivity {
 
             @Override
             public void onError(@NonNull ImageCaptureException exception) {
-                Log.e("OcrCapture", "Photo capture failed: " + exception.getMessage(), exception);
+                Log.e(TAG, "Photo capture failed: " + exception.getMessage(), exception);
                 binding.progressBar.setVisibility(View.GONE);
                 binding.btnCapture.setEnabled(true);
             }
@@ -116,7 +118,7 @@ public class OcrCaptureActivity extends AppCompatActivity {
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(OcrCaptureActivity.this, "Error al reconocer texto: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(OcrCaptureActivity.this, getString(R.string.ocr_error_recognition, e.getMessage()), Toast.LENGTH_SHORT).show();
                     imageProxy.close();
                     binding.progressBar.setVisibility(View.GONE);
                     binding.btnCapture.setEnabled(true);
@@ -139,7 +141,7 @@ public class OcrCaptureActivity extends AppCompatActivity {
             if (allPermissionsGranted()) {
                 startCamera();
             } else {
-                Toast.makeText(this, "Permisos no concedidos por el usuario.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.ocr_error_permissions, Toast.LENGTH_SHORT).show();
                 finish();
             }
         }
