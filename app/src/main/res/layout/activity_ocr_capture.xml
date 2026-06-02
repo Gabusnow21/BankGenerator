@@ -19,7 +19,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Alinea el texto del examen"
+        android:text="@string/ocr_instruction"
         android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="bold"

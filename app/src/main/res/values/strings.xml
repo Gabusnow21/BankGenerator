@@ -81,8 +81,21 @@
     <string name="editor_label_justification">Justificación</string>
 
     <!-- OCR Strings -->
+    <string name="ocr_instruction">Alinea el texto del examen</string>
     <string name="ocr_error_recognition">Error al reconocer texto: %1$s</string>
     <string name="ocr_error_permissions">Permisos no concedidos por el usuario.</string>
+
+    <!-- Macro Strings -->
+    <string name="macro_frac">\\frac{}{}</string>
+    <string name="macro_sqrt">\\sqrt{}</string>
+    <string name="macro_pow">^{}</string>
+    <string name="macro_sub">_{}</string>
+    <string name="macro_pm">\\pm</string>
+    <string name="macro_times">\\times</string>
+    <string name="macro_alpha">\\alpha</string>
+    <string name="macro_beta">\\beta</string>
+    <string name="macro_sum">\\sum_{}^{}</string>
+    <string name="macro_int">\\int_{}^{}</string>
 
     <!-- Question Item Strings -->
     <string name="item_created_at">Creado el %1$s</string>

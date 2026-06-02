@@ -19,7 +19,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="\\frac{}{}"
+            android:text="@string/macro_frac"
             android:textAllCaps="false"
             android:textColor="@color/white"
             app:rippleColor="@color/accent_purple" />
@@ -29,7 +29,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="\\sqrt{}"
+            android:text="@string/macro_sqrt"
             android:textAllCaps="false"
             android:textColor="@color/white"
             app:rippleColor="@color/accent_purple" />
@@ -39,7 +39,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="^{}"
+            android:text="@string/macro_pow"
             android:textAllCaps="false"
             android:textColor="@color/white"
             app:rippleColor="@color/accent_purple" />
@@ -49,7 +49,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="_{}"
+            android:text="@string/macro_sub"
             android:textAllCaps="false"
             android:textColor="@color/white"
             app:rippleColor="@color/accent_purple" />
@@ -59,7 +59,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="\\pm"
+            android:text="@string/macro_pm"
             android:textAllCaps="false"
             android:textColor="@color/white"
             app:rippleColor="@color/accent_purple" />
@@ -69,7 +69,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="\\times"
+            android:text="@string/macro_times"
             android:textAllCaps="false"
             android:textColor="@color/white"
             app:rippleColor="@color/accent_purple" />
@@ -79,7 +79,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="\\alpha"
+            android:text="@string/macro_alpha"
             android:textAllCaps="false"
             android:textColor="@color/white"
             app:rippleColor="@color/accent_purple" />
@@ -89,7 +89,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="\\beta"
+            android:text="@string/macro_beta"
             android:textAllCaps="false"
             android:textColor="@color/white"
             app:rippleColor="@color/accent_purple" />
@@ -99,7 +99,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="\\sum_{}^{}"
+            android:text="@string/macro_sum"
             android:textAllCaps="false"
             android:textColor="@color/white"
             app:rippleColor="@color/accent_purple" />
@@ -109,7 +109,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="\\int_{}^{}"
+            android:text="@string/macro_int"
             android:textAllCaps="false"
             android:textColor="@color/white"
             app:rippleColor="@color/accent_purple" />
