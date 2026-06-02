@@ -1,6 +1,7 @@
 package com.gabusdev.dev.quizbank.ui.questions;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.WebSettings;
@@ -19,6 +20,10 @@ import java.util.concurrent.Executors;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.content.SharedPreferences;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import com.google.android.material.button.MaterialButton;
 
 public class QuestionEditorActivity extends AppCompatActivity {
     public static final String EXTRA_QUESTION_ID = "extra_question_id";
@@ -28,6 +33,18 @@ public class QuestionEditorActivity extends AppCompatActivity {
     private boolean isWebView2Loaded = false;
     private int questionId = -1;
     private int currentStep = 1;
+
+    private final ActivityResultLauncher<Intent> ocrLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    String extractedText = result.getData().getStringExtra(OcrCaptureActivity.EXTRA_EXTRACTED_TEXT);
+                    if (extractedText != null) {
+                        insertTextAtCursor(extractedText);
+                    }
+                }
+            }
+    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,9 +66,63 @@ public class QuestionEditorActivity extends AppCompatActivity {
         setupPreview(binding.wvPreview, true);
         setupPreview(binding.wvPreview2, false);
         setupTextWatcher();
+        setupMacrosAndOcr();
         
         if (questionId != -1) {
             loadQuestionData();
+        }
+    }
+
+    private void setupMacrosAndOcr() {
+        SharedPreferences prefs = getSharedPreferences("quizbank_prefs", MODE_PRIVATE);
+        boolean showMacros = prefs.getBoolean("show_macros", true);
+        
+        binding.switchMacros.setChecked(showMacros);
+        binding.layoutMacros.getRoot().setVisibility(showMacros ? View.VISIBLE : View.GONE);
+
+        binding.switchMacros.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            binding.layoutMacros.getRoot().setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            prefs.edit().putBoolean("show_macros", isChecked).apply();
+        });
+
+        binding.btnScanOcr.setOnClickListener(v -> {
+            Intent intent = new Intent(this, OcrCaptureActivity.class);
+            ocrLauncher.launch(intent);
+        });
+
+        setupMacroButtons();
+    }
+
+    private void setupMacroButtons() {
+        // Find buttons in the included layout
+        View macroBar = binding.layoutMacros.getRoot();
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_frac), "\\frac{}{}");
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_sqrt), "\\sqrt{}");
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_pow), "^{}");
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_sub), "_{}");
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_pm), "\\pm");
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_times), "\\times");
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_alpha), "\\alpha");
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_beta), "\\beta");
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_sum), "\\sum_{}^{}");
+        setupMacroButton(macroBar.findViewById(R.id.btn_macro_int), "\\int_{}^{}");
+    }
+
+    private void setupMacroButton(View button, String macro) {
+        if (button != null) {
+            button.setOnClickListener(v -> insertTextAtCursor(macro));
+        }
+    }
+
+    private void insertTextAtCursor(String text) {
+        int start = Math.max(binding.etEnunciado.getSelectionStart(), 0);
+        int end = Math.max(binding.etEnunciado.getSelectionEnd(), 0);
+        binding.etEnunciado.getText().replace(Math.min(start, end), Math.max(start, end),
+                text, 0, text.length());
+        
+        // Position cursor inside brackets if present
+        if (text.contains("{}")) {
+            binding.etEnunciado.setSelection(start + text.indexOf("{") + 1);
         }
     }
 
